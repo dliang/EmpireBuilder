@@ -1,0 +1,18 @@
+package com.me.empirebuilder.Enums;
+
+public enum GamePhase {
+	HOUSE_PHASE,
+	FARM_PHASE,
+	LUMBER_PHASE,
+	IRON_PHASE,
+	COAL_PHASE,
+	BARRACKS_PHASE,
+	ARCHERY_PHASE,
+	STABLE_PHASE,
+	WALL_PHASE,
+	TOWER_PHASE,
+	
+	FREE_PHASE,
+	
+	SWORDSMAN_PHASE
+}

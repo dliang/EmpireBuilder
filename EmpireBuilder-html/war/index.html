@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+	<head>
+		<title>EmpireBuilder</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<style>
+			canvas {
+				cursor: default;
+				outline: none;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<div align="center" id="embed-com.me.empirebuilder.GwtDefinition"></div>
+		<script type="text/javascript" src="com.me.empirebuilder.GwtDefinition/com.me.empirebuilder.GwtDefinition.nocache.js"></script>
+	</body>
+	
+	<script>
+		function handleMouseDown(evt) {
+		  evt.preventDefault();
+		  evt.stopPropagation();
+		  evt.target.style.cursor = 'default';
+		}
+		
+		function handleMouseUp(evt) {
+		  evt.preventDefault();
+		  evt.stopPropagation();
+		  evt.target.style.cursor = '';
+		}
+		
+		document.getElementById('embed-com.me.empirebuilder.GwtDefinition').addEventListener('mousedown', handleMouseDown, false);
+		document.getElementById('embed-com.me.empirebuilder.GwtDefinition').addEventListener('mouseup', handleMouseUp, false);
+	</script>
+
+	<body>
+		<p>
+			Game is still under production.<br>
+
+		<h3>Controls:</h3>
+			<ul>
+				<li>Left click to select</li>
+				<li>right click to deselect / show path to tile</li>
+				<li>escape to deselect</li>
+				<li> - to zoom out</li>
+				<li> = to zoom in</li>
+				<li> left click and drag to move map</li>
+			</ul>
+
+			Current Version:<br>
+			Test Unit now able to show movement route.
+		</p>
+	</body>
+</html>
