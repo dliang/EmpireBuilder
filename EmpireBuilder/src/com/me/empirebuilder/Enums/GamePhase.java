@@ -13,6 +13,7 @@ public enum GamePhase {
 	TOWER_PHASE,
 	
 	FREE_PHASE,
+	COMPUTER_PHASE,
 	
 	SWORDSMAN_PHASE
 }

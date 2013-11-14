@@ -1,5 +1,6 @@
 package com.me.empirebuilder.Managers;
 
+
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
@@ -8,6 +9,8 @@ import com.me.empirebuilder.Buildings.Building;
 import com.me.empirebuilder.Buildings.Farm;
 import com.me.empirebuilder.Buildings.House;
 import com.me.empirebuilder.Enums.GamePhase;
+import com.me.empirebuilder.Players.Player;
+import com.me.empirebuilder.Tasks.GameLoop;
 import com.me.empirebuilder.Tiles.Tile;
 import com.me.empirebuilder.Units.Swordsman;
 import com.me.empirebuilder.Units.Unit;
@@ -18,10 +21,12 @@ public class GameInputHandler implements InputProcessor {
 	GameWorld world;
 	private Vector2 last;
 	private Vector2 lastTouch = new Vector2();
-	private Tile tile;
+	private Tile tile, prevTile;
 	private Building building;
 	private Unit unit;
 	private boolean middleDown = false;
+	private boolean firstRight = true;
+	private Player selectedUnitOfPlayer;
 	
 	public float camNonOriginX, camNonOriginY;
 	
@@ -81,6 +86,7 @@ public class GameInputHandler implements InputProcessor {
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		prevTile = tile;
 		tile = renderer.getTile(renderer.mouseX, renderer.mouseY);
 		
 		switch(button) {
@@ -92,6 +98,19 @@ public class GameInputHandler implements InputProcessor {
 							unit = world.getUnit(tile);
 							world.calculatePossibleTargets(tile, unit.getMovePointsRemaining());
 							unit.setSelected(true);
+							
+							//get the unit at a current tile:
+							//cycle through all the players, and find the unit at that tile:
+							for (Player p : world.getPlayers()) {
+								for (Unit u : p.getUnits()) {
+									if (u.getPosition() == tile.getPosition()) {
+										System.out.print(u.getName() + " of ");
+										p.printName();
+										selectedUnitOfPlayer = p;
+										break;
+									}
+								}
+							}
 						} else if (tile.hasBuilding()) {
 							deselectAll();
 							building = world.getBuilding(tile);
@@ -100,8 +119,8 @@ public class GameInputHandler implements InputProcessor {
 														
 						} else {
 							deselectAll();
-							tile.printName();
-							tile.printAdjacentTiles();
+//							tile.printName();
+//							tile.printAdjacentTiles();
 						}
 						break;
 					case HOUSE_PHASE:
@@ -121,7 +140,9 @@ public class GameInputHandler implements InputProcessor {
 						renderer.phase = GamePhase.FREE_PHASE;
 						break;
 					case SWORDSMAN_PHASE:
-						world.addUnits(new Swordsman(tile.getPosition()), tile);
+//						world.addUnits(new Swordsman(tile.getPosition()), tile);
+						world.getPlayers().get(world.getGameLoop().getCurrentPlayerIndex()).addUnit(new Swordsman(tile.getPosition()));
+						tile.setHasUnit(true);
 						renderer.phase = GamePhase.FREE_PHASE;
 						break;						
 					default:
@@ -132,10 +153,36 @@ public class GameInputHandler implements InputProcessor {
 				renderer.phase = GamePhase.FREE_PHASE;
 				if (building != null) building.setSelected(false);
 				if (unit != null && unit.isSelected()) {
-					System.out.println(world.getTile(unit.getPosition()).getPosition().x + " --> " + tile.getPosition().x);
-					unit.clearNewPath();
-					world.calculatePossiblePaths(world.getTile(unit.getPosition()));
-					unit.setNewPath(world.getShortestPathTo(tile));
+					//cannot command unit if the unit does not belong to the current player:
+					if (selectedUnitOfPlayer != world.getGameLoop().getCurrentPlayer()) {
+						System.out.println("cannot command unit");
+						break;
+					}
+					//check to see if it's the first right click at that same tile for the unit. If it isn't, then move the unit. 
+					if (prevTile == null || prevTile.getPosition() != tile.getPosition()) {
+						firstRight = true;
+						if (unit.getNewPath().size() > 0) {
+							if (unit.getNewPath().get(unit.getNewPath().size() - 1).getPosition() == tile.getPosition()) {
+								firstRight = false;
+							}
+						}
+					} else if (prevTile.getPosition() == tile.getPosition()) {
+						firstRight = false;
+					}
+					if (firstRight) {
+						System.out.println(world.getTile(unit.getPosition()).getPosition().x + " --> " + tile.getPosition().x);
+						unit.clearNewPath();
+						world.calculatePossiblePaths(world.getTile(unit.getPosition()));
+						unit.setNewPath(world.getShortestPathTo(tile));
+//						for (Tile t : unit.getNewPath()) {
+//							System.out.println(t.getPosition().x + ", " + t.getPosition().y);
+//						}
+					} else {
+						//move the unit here during the same turn
+						if (unit.getMovePointsRemaining() > 0)
+							world.getGameLoop().moveUnit(unit);
+						System.out.println("not the first right click at the same location");
+					}
 				}
 				break;
 			case Input.Buttons.MIDDLE:
@@ -174,9 +221,11 @@ public class GameInputHandler implements InputProcessor {
 //		float x = renderer.camera.position.x + (touchX / renderer.camera.viewportWidth);
 //		float y = renderer.camera.position.y + ((renderer.height - touchY) / renderer.camera.viewportHeight);
 		Vector2 temp = new Vector2(touchX, renderer.height - touchY);
-		temp = temp.sub(lastTouch).nor().mul((renderer.camera.viewportWidth / touchX) * 3f);
-		renderer.camera.position.set(renderer.camera.position.x - temp.x, renderer.camera.position.y - temp.y, 0);
-
+	//	temp = temp.sub(lastTouch).nor().mul((renderer.camera.viewportWidth / touchX) * 3f);
+		renderer.camera.position.set(renderer.camera.position.x - (renderer.camera.viewportWidth / renderer.cameraWidth) * (temp.x - lastTouch.x), 
+									renderer.camera.position.y - (renderer.camera.viewportHeight / renderer.cameraHeight) * (temp.y - lastTouch.y), 0);
+		System.out.println(renderer.camera.viewportWidth + ", " + renderer.cameraWidth);
+		
 		lastTouch.set(touchX, renderer.height - touchY);
 	}
 

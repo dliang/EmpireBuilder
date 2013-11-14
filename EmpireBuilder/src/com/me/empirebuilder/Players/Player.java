@@ -14,8 +14,11 @@ public abstract class Player {
 	protected Array<Unit> units;
 	protected Array<Building> buildings;
 	protected int maxPopulation, currentPopulation;
+	protected String name;
+	protected Array<Array<Unit>> unitGroups;
 		
-	public Player(Resources resources, Vector2 start, int workers) {
+	public Player(String name, Resources resources, Vector2 start, int workers) {
+		this.name = name;
 		this.resources = resources;
 		this.startPosition = start;
 		this.workers = workers;
@@ -23,12 +26,15 @@ public abstract class Player {
 		buildings = new Array<Building>();
 		resourceGen = new ResourceGeneration(0, 0, 0, 0, 0, 0, 0);
 		resourceGen.goldGen = workers * 10;
+		unitGroups = new Array<Array<Unit>>();
 	}
 
+	public void printName() {
+		System.out.println(name);
+	}
 	public Resources getResources() {
 		return resources;
 	}
-
 
 	public void setResources(Resources resources) {
 		this.resources = resources;
@@ -64,11 +70,41 @@ public abstract class Player {
 		this.units = units;
 	}
 
+	public void addUnit(Unit unit) {
+		this.units.add(unit);
+		unitGroups.add(new Array<Unit>());
+		unit.setGroupIndex(unitGroups.size - 1);
+		unitGroups.get(unitGroups.size - 1).add(unit);
+	}
+	
+	public Array<Array<Unit>> getUnitGroups() {
+		return unitGroups;
+	}
+	
+	public void addUnitToGroup(Unit targetUnit, Unit selectedUnit) {
+		unitGroups.get(targetUnit.getGroupIndex()).add(selectedUnit);
+		unitGroups.get(selectedUnit.getGroupIndex()).removeIndex(getUnitIndex(selectedUnit));
+		selectedUnit.setGroupIndex(targetUnit.getGroupIndex());
+	}
+	
+	public int getUnitIndex(Unit unit) {
+		for(Array<Unit> a : unitGroups) {
+			for (int j = 0; j < a.size; j++) {
+				if (a.get(j) == unit) {
+					return j;
+				}
+			}
+		}
+		return -1;
+	}
 
 	public Array<Building> getBuildings() {
 		return buildings;
 	}
 
+	public void addBuilding(Building building) {
+		this.buildings.add(building);
+	}
 
 	public void setBuildings(Array<Building> buildings) {
 		this.buildings = buildings;
@@ -93,7 +129,13 @@ public abstract class Player {
 	public void setCurrentPopulation(int currentPopulation) {
 		this.currentPopulation = currentPopulation;
 	}
-
-
+		
+	public void resetUnitMovements() {
+		for (Unit u : units) {
+			u.resetMovePointsRemaining();
+		}
+	}
 	public abstract void endTurn();
+	public abstract boolean isHuman();
+	public abstract void startTurn();
 }

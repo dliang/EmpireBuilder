@@ -8,6 +8,7 @@ public class Swordsman extends Unit{
 
 	public Swordsman(Vector2 position) {
 		super(position);
+		name = "Swordsman";
 		texture = UnitTexture.SWORDSMAN;
 		movePoints = 2;
 		movePointsRemaining = 2;

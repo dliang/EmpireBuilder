@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.me.empirebuilder.Enums.GamePhase;
+import com.me.empirebuilder.Managers.GameWorld;
 import com.me.empirebuilder.Managers.WorldRenderer;
 
 public class BottomStage extends Stage {
@@ -28,16 +29,19 @@ public class BottomStage extends Stage {
 	private Button militaryButton, econButton, backButton;
 	private Button barracksButton, wallsButton;
 	private Button houseButton, farmButton;
+	private Button endTurnButton;
 	
 	private WorldRenderer renderer;
+	private GameWorld world;
 	
 	private float commandsX, commandsY;
 	
 	
 	
-	public BottomStage(WorldRenderer renderer) {
+	public BottomStage(WorldRenderer renderer, GameWorld world) {
 		super();
 		this.renderer = renderer;
+		this.world = world;
 		commandsX = renderer.width - WorldRenderer.MINI_MAP_WIDTH;
 		commandsY = renderer.MINI_MAP_HEIGHT + 50;
 		
@@ -57,8 +61,8 @@ public class BottomStage extends Stage {
 		barracksButton = createButton("barracks up", "barracks down");
 		wallsButton = createButton("walls up", "walls down");
 		
-		
-		
+		endTurnButton = createButton("end up", "end down");
+				
 		setDefaultButtons();	
 		setEconomyButtons();
 		setMilitaryButtons();
@@ -107,6 +111,25 @@ public class BottomStage extends Stage {
 			
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 				setStageMilitary();
+			}
+		});
+		
+		//End Turn Button(2, 3)
+		endTurnButton.setX(commandsX + BUTTON_SIZE * 3);
+		endTurnButton.setY(commandsY - BUTTON_SIZE * 3);
+		endTurnButton.setWidth(BUTTON_SIZE);
+		endTurnButton.setHeight(BUTTON_SIZE);
+		endTurnButton.addListener(new InputListener() {			
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+			
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				if (world.getPlayerTurn()) {
+					world.startNextPlayerTurn();
+				} else {
+					System.out.println("Not player's turn");
+				}
 			}
 		});
 	}
@@ -194,6 +217,7 @@ public class BottomStage extends Stage {
 		this.addActor(background);
 		this.addActor(econButton);
 		this.addActor(militaryButton);
+		this.addActor(endTurnButton);
 	}
 	
 	public void setStageBuild() {
@@ -215,5 +239,5 @@ public class BottomStage extends Stage {
 	public void setStageBuilding() {
 		this.clear();
 		this.addActor(background);
-	}
+	}	
 }

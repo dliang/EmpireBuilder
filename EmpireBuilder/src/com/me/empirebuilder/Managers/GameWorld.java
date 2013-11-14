@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 
+
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -22,6 +23,7 @@ import com.me.empirebuilder.EmpireBuilder;
 import com.me.empirebuilder.Buildings.Building;
 import com.me.empirebuilder.Enums.TileType;
 import com.me.empirebuilder.Players.Player;
+import com.me.empirebuilder.Tasks.GameLoop;
 import com.me.empirebuilder.Tiles.Grassland;
 import com.me.empirebuilder.Tiles.Mountain;
 import com.me.empirebuilder.Tiles.Tile;
@@ -31,6 +33,8 @@ public class GameWorld {
 	
 	private EmpireBuilder game;
 	private WorldRenderer renderer;
+	private Runnable gameLoop;
+	private Thread gameLoopThread;
 
 	//------------------------------------
 	//	Arrays
@@ -43,6 +47,9 @@ public class GameWorld {
 	private Array<Array<Vector2>> possibleTargetPaths = new Array<Array<Vector2>>();
 
 	private Array<Player> players = new Array<Player>();
+	private int playerIter;
+	private Player currentPlayer;
+	private boolean playerTurn;
 		
 	
 	public GameWorld(EmpireBuilder game, Array<Player> players) {
@@ -50,6 +57,9 @@ public class GameWorld {
 		generateMap(renderer.MAP_SIZE);
 		calculateAdjacentTiles();
 		this.players = players;
+		playerIter = 0;
+		playerTurn = false;
+		startNewGame();
 	}
 	
 	
@@ -67,6 +77,51 @@ public class GameWorld {
 				
 			}
 		}
+	}
+	public void startNewGame() {
+		
+//		currentPlayer = players.get(0);
+//		currentPlayer.printName();
+		
+		//create the gaming thread here: 
+		gameLoop = new GameLoop(this);
+		gameLoopThread = new Thread(gameLoop);
+		gameLoopThread.start();
+			
+	}
+	
+	public void startNextPlayerTurn() {
+//		incrementIter();
+//		currentPlayer = players.get(playerIter);
+//		currentPlayer.printName();
+		((GameLoop)gameLoop).startNextPlayerTurn();
+	}
+	
+	private void incrementIter() {
+		playerIter++;
+		if (playerIter >= players.size) {
+			playerIter = 0;
+		}
+	}
+	
+	/**
+	 * get the current player
+	 * @return Player
+	 */
+	public Player getCurrentPlayer() {
+		return currentPlayer;
+	}
+	
+	/**
+	 * set the player's turn to be true is human, false if computer. 
+	 * @param boolean
+	 */
+	public void setPlayerTurn(boolean bool) {
+		playerTurn = bool;
+	}
+	
+	public boolean getPlayerTurn() {
+		return playerTurn;
 	}
 	
 	public void update() {
@@ -122,12 +177,36 @@ public class GameWorld {
 	}
 	
 	public Unit getUnit(Tile tile) {
-		for (Unit u : units) {
-			if (u.getPosition().equals(tile.getPosition())) {
-				return u;
+//		for (Unit u : units) {
+//			if (u.getPosition().equals(tile.getPosition())) {
+//				return u;
+//			}
+//		}
+		for (Player p : players) {
+			for (Unit u : p.getUnits()) {
+				if (u.getPosition().equals(tile.getPosition())) {
+					return u;
+				}
 			}
 		}
 		return null;
+	}
+	
+	public Array<Unit> getUnitGroup(Tile tile) {
+		for (Player p : players) {
+			for (Array<Unit> a : p.getUnitGroups()) {
+				for (Unit u : a){
+					if (u.getPosition().equals(tile.getPosition())) {
+						return a;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	public void moveUnit(Unit u) {
+		((GameLoop) gameLoop).moveUnit(u);
 	}
 	
 	private void calculateAdjacentTiles() {
@@ -154,6 +233,11 @@ public class GameWorld {
 		}
 	}
 	
+	/**
+	 * Shows all the possible targeted tiles given the current tile, and number of moves. 
+	 * @param currentTile
+	 * @param moves
+	 */
 	public void calculatePossibleTargets(Tile currentTile, int moves) {
 		if (moves >= 0) {
 			switch (currentTile.getType()) {
@@ -174,7 +258,11 @@ public class GameWorld {
 		}
 	}
 	
-	//Using Dijkstra's Algorithm, calculate the cost of each path starting at the current tile
+	/**
+	 * Using Dijkstra's Algorithm, calculate the cost of each path starting at the current tile
+	 * A single shortest path will be created
+	 * @param currentTile
+	 */
 	public void calculatePossiblePaths(Tile currentTile) {
 		System.out.println("algorithm called");
 		currentTile.setCurrentCost(0);
@@ -197,15 +285,24 @@ public class GameWorld {
 		}
 	}
 	
+	/**
+	 * returns the Queue generated as a List
+	 * @param target
+	 * @return
+	 */
 	public List<Tile> getShortestPathTo(Tile target) {
 		List<Tile> path = new ArrayList<Tile>();
 		for (Tile tile = target; tile != null; tile = tile.getPrevious()) {
 			path.add(tile);
 		}
+		path.remove(path.size() - 1);
 		Collections.reverse(path);
 		return path;
 	}
 	
+	/**
+	 * remove all the possible tiles generated. 
+	 */
 	public void clearPossibleTargets() {
 		possiblePaths.clear();
 	}
@@ -225,5 +322,9 @@ public class GameWorld {
 	
 	public Array<Vector2> getTargetPath() {
 		return targetPath;
+	}
+	
+	public GameLoop getGameLoop() {
+		return (GameLoop)gameLoop;
 	}
 }

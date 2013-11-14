@@ -117,6 +117,11 @@ public class WorldRenderer {
 		hudCamera.setToOrtho(false, width, height);
 		hudCamera.zoom = SCALE;
 		
+		//move the camera to the the center of the map and zoom out:
+		camera.position.set(500, 500, 0);
+		camera.viewportHeight += (camera.viewportHeight / 25) * 20;
+		camera.viewportWidth += (camera.viewportWidth / 25) * 20;
+		
 		//instantiate the two Sprite Batches
 		gameBatch = new SpriteBatch();
 		hudBatch = new SpriteBatch();
@@ -141,7 +146,7 @@ public class WorldRenderer {
 		swordsmanGhostTexture = loadTexture("units/swordsman_ghost.png", TextureFilter.Linear);
 		
 		//instantiate the stages (game HUD)
-		botStage = new BottomStage(this);
+		botStage = new BottomStage(this, world);
 		botStage.setStageDefault();
 		debugStage = new DebugStage(this);
 		debugStage.showDebug();
@@ -206,34 +211,30 @@ public class WorldRenderer {
 					default:
 						break;
 				}
+				if (u.isSelected()) {
+					//draw unit paths
+					for (Tile t : possiblePaths) {
+						gameBatch.draw(highlightTileTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
+					}
+					//draw target path
+					for (Tile t : u.getNewPath()) {
+						gameBatch.draw(highlightBlueTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
+					}
+					//draw selected texture:
+					switch (u.getTexture()) {
+						case SWORDSMAN:
+							gameBatch.draw(swordsmanGhostTexture, u.getPosition().x * 50, u.getPosition().y * 50, 50, 50);
+							break;
+						default:
+							break;
+					}
+					
+				}
 			}
 		}
 		
-		//draw buildings
-		for (Building b : buildings) {
-			switch(b.getTexture()) {
-				case HOUSE:
-					gameBatch.draw(houseTexture, b.getPosition().x * b.getSize(), b.getPosition().y * b.getSize(), b.getSize(), b.getSize());
-					break;
-				case FARM:
-					gameBatch.draw(farmTexture, b.getPosition().x * b.getSize(), b.getPosition().y * b.getSize(), b.getSize(), b.getSize());
-					break;
-				default:
-					break;
-			}
-		}
-		
-		//draw units
-		for (Unit u : units) {
-			switch (u.getTexture()) {
-				case SWORDSMAN:
-					gameBatch.draw(swordsmanTexture, u.getPosition().x * 50, u.getPosition().y * 50, 50, 50);
-					break;
-				default:
-					break;
-			}
-		}
-		
+
+		//show the building where it will be placed. Follows the mouse per tile. 
 		tile = getTile(mouseX, mouseY);
 		switch (phase) {
 			case HOUSE_PHASE:
@@ -251,22 +252,23 @@ public class WorldRenderer {
 				break;
 		}
 		
-		//draw unit paths:
-		for (Tile t : possiblePaths) {
-			gameBatch.draw(highlightTileTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
-		}
+//		//draw unit paths:
+//		for (Tile t : possiblePaths) {
+//			gameBatch.draw(highlightTileTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
+//		}
 		
 		//draw unit target pathing:
-		for (Unit u : units) {
-			if (u.isSelected()) {
-//				for (Vector2 t : u.getPath()) {
-//					gameBatch.draw(highlightBlueTexture, t.x * 50, t.y * 50, 50, 50);
+//		for (Unit u : units) {
+//			if (u.isSelected()) {
+////				for (Vector2 t : u.getPath()) {
+////					gameBatch.draw(highlightBlueTexture, t.x * 50, t.y * 50, 50, 50);
+////				}
+//				for (Tile t : u.getNewPath()) {
+//					gameBatch.draw(highlightBlueTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
 //				}
-				for (Tile t : u.getNewPath()) {
-					gameBatch.draw(highlightBlueTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
-				}
-			}
-		}
+//			}
+//		}
+		
 		gameBatch.end();
 		
 		//Game Debugging batch
