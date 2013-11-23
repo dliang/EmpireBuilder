@@ -72,6 +72,10 @@ public abstract class Unit {
 		movePointsRemaining = movePoints;
 	}
 	
+	public int getMovePoints() {
+		return movePoints;
+	}
+	
 	public Vector2 getPosition() {
 		return position;
 	}

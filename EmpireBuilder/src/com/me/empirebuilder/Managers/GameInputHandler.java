@@ -14,6 +14,7 @@ import com.me.empirebuilder.Tasks.GameLoop;
 import com.me.empirebuilder.Tiles.Tile;
 import com.me.empirebuilder.Units.Swordsman;
 import com.me.empirebuilder.Units.Unit;
+import com.me.empirebuilder.Units.UnitGroup;
 
 public class GameInputHandler implements InputProcessor {
 
@@ -24,6 +25,7 @@ public class GameInputHandler implements InputProcessor {
 	private Tile tile, prevTile;
 	private Building building;
 	private Unit unit;
+	private UnitGroup unitGroup;
 	private boolean middleDown = false;
 	private boolean firstRight = true;
 	private Player selectedUnitOfPlayer;
@@ -95,17 +97,15 @@ public class GameInputHandler implements InputProcessor {
 					case FREE_PHASE:
 						if (tile.hasUnit()) {
 							deselectAll();
-							unit = world.getUnit(tile);
-							world.calculatePossibleTargets(tile, unit.getMovePointsRemaining());
-							unit.setSelected(true);
-							
+							unitGroup = world.getUnitGroup(tile);
+							world.calculatePossibleTargets(tile, unitGroup.getMovePointsRemaining());
+							unitGroup.setSelected(true);
 							//get the unit at a current tile:
 							//cycle through all the players, and find the unit at that tile:
 							for (Player p : world.getPlayers()) {
-								for (Unit u : p.getUnits()) {
-									if (u.getPosition() == tile.getPosition()) {
-										System.out.print(u.getName() + " of ");
-										p.printName();
+								for (UnitGroup g : p.getUnitGroups()) {
+									if (g.getPosition() == tile.getPosition()) {
+										System.out.println("PROPERTY OF PLAYER " + p.getName());
 										selectedUnitOfPlayer = p;
 										break;
 									}
@@ -152,7 +152,7 @@ public class GameInputHandler implements InputProcessor {
 			case Input.Buttons.RIGHT:
 				renderer.phase = GamePhase.FREE_PHASE;
 				if (building != null) building.setSelected(false);
-				if (unit != null && unit.isSelected()) {
+				if (unitGroup != null && unitGroup.isSelected()) {
 					//cannot command unit if the unit does not belong to the current player:
 					if (selectedUnitOfPlayer != world.getGameLoop().getCurrentPlayer()) {
 						System.out.println("cannot command unit");
@@ -161,8 +161,8 @@ public class GameInputHandler implements InputProcessor {
 					//check to see if it's the first right click at that same tile for the unit. If it isn't, then move the unit. 
 					if (prevTile == null || prevTile.getPosition() != tile.getPosition()) {
 						firstRight = true;
-						if (unit.getNewPath().size() > 0) {
-							if (unit.getNewPath().get(unit.getNewPath().size() - 1).getPosition() == tile.getPosition()) {
+						if (unitGroup.getPath().size() > 0) {
+							if (unitGroup.getPath().get(unitGroup.getPath().size() - 1).getPosition() == tile.getPosition()) {
 								firstRight = false;
 							}
 						}
@@ -170,17 +170,16 @@ public class GameInputHandler implements InputProcessor {
 						firstRight = false;
 					}
 					if (firstRight) {
-						System.out.println(world.getTile(unit.getPosition()).getPosition().x + " --> " + tile.getPosition().x);
-						unit.clearNewPath();
-						world.calculatePossiblePaths(world.getTile(unit.getPosition()));
-						unit.setNewPath(world.getShortestPathTo(tile));
+//						System.out.println(world.getTile(unit.getPosition()).getPosition().x + " --> " + tile.getPosition().x);
+						unitGroup.createShortestPath(world.getTile(unitGroup.getPosition()), tile);
+						
 //						for (Tile t : unit.getNewPath()) {
 //							System.out.println(t.getPosition().x + ", " + t.getPosition().y);
 //						}
 					} else {
 						//move the unit here during the same turn
-						if (unit.getMovePointsRemaining() > 0)
-							world.getGameLoop().moveUnit(unit);
+						if (unitGroup.getMovePointsRemaining() > 0)
+							world.getGameLoop().moveUnitGroup(unitGroup);
 						System.out.println("not the first right click at the same location");
 					}
 				}
@@ -199,6 +198,11 @@ public class GameInputHandler implements InputProcessor {
 		if (building != null) building.setSelected(false);
 		if (unit != null) {
 			unit.setSelected(false);
+			world.resetTiles();
+			world.clearPossibleTargets();
+		}
+		if (unitGroup != null) {
+			unitGroup.setSelected(false);
 			world.resetTiles();
 			world.clearPossibleTargets();
 		}

@@ -28,6 +28,7 @@ import com.me.empirebuilder.Tiles.Grassland;
 import com.me.empirebuilder.Tiles.Mountain;
 import com.me.empirebuilder.Tiles.Tile;
 import com.me.empirebuilder.Units.Unit;
+import com.me.empirebuilder.Units.UnitGroup;
 
 public class GameWorld {
 	
@@ -167,6 +168,7 @@ public class GameWorld {
 		return null;
 	}
 
+	//deprecated******************
 	public Array<Unit> getUnits() {
 		return units;
 	}
@@ -175,7 +177,18 @@ public class GameWorld {
 		tile.setHasUnit(true);
 		this.units.add(unit);
 	}
+	//****************************
 	
+	public UnitGroup getUnitGroup(Tile tile) {
+		for (Player p : players) {
+			for (UnitGroup g : p.getUnitGroups()) {
+				if (g.getPosition().equals(tile.getPosition())) {
+					return g;
+				}
+			}
+		}
+		return null;
+	}
 	public Unit getUnit(Tile tile) {
 //		for (Unit u : units) {
 //			if (u.getPosition().equals(tile.getPosition())) {
@@ -192,22 +205,24 @@ public class GameWorld {
 		return null;
 	}
 	
-	public Array<Unit> getUnitGroup(Tile tile) {
-		for (Player p : players) {
-			for (Array<Unit> a : p.getUnitGroups()) {
-				for (Unit u : a){
-					if (u.getPosition().equals(tile.getPosition())) {
-						return a;
-					}
-				}
-			}
-		}
-		return null;
-	}
+//	public Array<Unit> getUnitGroup(Tile tile) {
+//		for (Player p : players) {
+//			for (Array<Unit> a : p.getUnitGroups()) {
+//				for (Unit u : a){
+//					if (u.getPosition().equals(tile.getPosition())) {
+//						return a;
+//					}
+//				}
+//			}
+//		}
+//		return null;
+//	}
 	
 	public void moveUnit(Unit u) {
 		((GameLoop) gameLoop).moveUnit(u);
 	}
+	
+	
 	
 	private void calculateAdjacentTiles() {
 		for (Array<Tile> a : tiles) {

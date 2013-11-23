@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.me.empirebuilder.Buildings.Building;
 import com.me.empirebuilder.Units.Unit;
+import com.me.empirebuilder.Units.UnitGroup;
 
 public abstract class Player {
 
@@ -15,7 +16,7 @@ public abstract class Player {
 	protected Array<Building> buildings;
 	protected int maxPopulation, currentPopulation;
 	protected String name;
-	protected Array<Array<Unit>> unitGroups;
+	protected Array<UnitGroup> unitGroups;
 		
 	public Player(String name, Resources resources, Vector2 start, int workers) {
 		this.name = name;
@@ -26,11 +27,15 @@ public abstract class Player {
 		buildings = new Array<Building>();
 		resourceGen = new ResourceGeneration(0, 0, 0, 0, 0, 0, 0);
 		resourceGen.goldGen = workers * 10;
-		unitGroups = new Array<Array<Unit>>();
+		unitGroups = new Array<UnitGroup>();
 	}
 
 	public void printName() {
 		System.out.println(name);
+	}
+	
+	public String getName() {
+		return name;
 	}
 	public Resources getResources() {
 		return resources;
@@ -70,36 +75,53 @@ public abstract class Player {
 		this.units = units;
 	}
 
-	public void addUnit(Unit unit) {
-		this.units.add(unit);
-		unitGroups.add(new Array<Unit>());
-		unit.setGroupIndex(unitGroups.size - 1);
-		unitGroups.get(unitGroups.size - 1).add(unit);
-	}
+//	public void addUnit(Unit unit) {
+//		this.units.add(unit);
+//		unitGroups.add(new Array<Unit>());
+//		unit.setGroupIndex(unitGroups.size - 1);
+//		unitGroups.get(unitGroups.size - 1).add(unit);
+//	}
+//	
+//	public Array<Array<Unit>> getUnitGroups() {
+//		return unitGroups;
+//	}
+//	
+//	public void addUnitToGroup(Unit targetUnit, Unit selectedUnit) {
+//		unitGroups.get(targetUnit.getGroupIndex()).add(selectedUnit);
+//		unitGroups.get(selectedUnit.getGroupIndex()).removeIndex(getUnitIndex(selectedUnit));
+//		selectedUnit.setGroupIndex(targetUnit.getGroupIndex());
+//	}
+//	
+//	public int getUnitIndex(Unit unit) {
+//		for(Array<Unit> a : unitGroups) {
+//			for (int j = 0; j < a.size; j++) {
+//				if (a.get(j) == unit) {
+//					return j;
+//				}
+//			}
+//		}
+//		return -1;
+//	}
 	
-	public Array<Array<Unit>> getUnitGroups() {
+	/**
+	 * Player's current array of UnitGroups. 
+	 * @return Array<UnitGroup>
+	 */
+	public Array<UnitGroup> getUnitGroups() {
 		return unitGroups;
-	}
-	
-	public void addUnitToGroup(Unit targetUnit, Unit selectedUnit) {
-		unitGroups.get(targetUnit.getGroupIndex()).add(selectedUnit);
-		unitGroups.get(selectedUnit.getGroupIndex()).removeIndex(getUnitIndex(selectedUnit));
-		selectedUnit.setGroupIndex(targetUnit.getGroupIndex());
-	}
-	
-	public int getUnitIndex(Unit unit) {
-		for(Array<Unit> a : unitGroups) {
-			for (int j = 0; j < a.size; j++) {
-				if (a.get(j) == unit) {
-					return j;
-				}
-			}
-		}
-		return -1;
 	}
 
 	public Array<Building> getBuildings() {
 		return buildings;
+	}
+	
+	/**
+	 * Add a unit to the player.
+	 * --adds the unit as part of a new UnitGroup
+	 * @param unit
+	 */
+	public void addUnit(Unit unit) {
+		unitGroups.add(new UnitGroup(unit.getPosition(), unit));
 	}
 
 	public void addBuilding(Building building) {
@@ -131,8 +153,11 @@ public abstract class Player {
 	}
 		
 	public void resetUnitMovements() {
-		for (Unit u : units) {
-			u.resetMovePointsRemaining();
+		for (UnitGroup g : unitGroups) {
+			for (Unit u : units) {
+				u.resetMovePointsRemaining();
+			}
+			g.resetMovePointsRemaining();
 		}
 	}
 	public abstract void endTurn();

@@ -26,6 +26,7 @@ import com.me.empirebuilder.Stages.BottomStage;
 import com.me.empirebuilder.Stages.DebugStage;
 import com.me.empirebuilder.Tiles.Tile;
 import com.me.empirebuilder.Units.Unit;
+import com.me.empirebuilder.Units.UnitGroup;
 
 public class WorldRenderer {
 	private GameWorld world;
@@ -203,32 +204,35 @@ public class WorldRenderer {
 				}
 			}
 			
-			for (Unit u : p.getUnits()) {
-				switch (u.getTexture()) {
-					case SWORDSMAN:
-						gameBatch.draw(swordsmanTexture, u.getPosition().x * 50, u.getPosition().y * 50, 50, 50);
-						break;
-					default:
-						break;
-				}
-				if (u.isSelected()) {
-					//draw unit paths
-					for (Tile t : possiblePaths) {
-						gameBatch.draw(highlightTileTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
-					}
-					//draw target path
-					for (Tile t : u.getNewPath()) {
-						gameBatch.draw(highlightBlueTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
-					}
-					//draw selected texture:
-					switch (u.getTexture()) {
+			for (UnitGroup g : p.getUnitGroups()) {
+			//	for (Unit u : g.getUnits()) {
+					switch (g.getTexture()) {
 						case SWORDSMAN:
-							gameBatch.draw(swordsmanGhostTexture, u.getPosition().x * 50, u.getPosition().y * 50, 50, 50);
+							gameBatch.draw(swordsmanTexture, g.getPosition().x * 50, g.getPosition().y * 50, 50, 50);
 							break;
 						default:
 							break;
 					}
 					
+					if (g.isSelected()) {
+						//draw unit paths
+						for (Tile t : possiblePaths) {
+							gameBatch.draw(highlightTileTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
+						}
+						//draw target path
+						for (Tile t : g.getPath()) {
+							gameBatch.draw(highlightBlueTexture, t.getPosition().x * t.getSize(), t.getPosition().y * t.getSize(), t.getSize(), t.getSize());
+						}
+						//draw selected texture:
+						switch (g.getTexture()) {
+							case SWORDSMAN:
+								gameBatch.draw(swordsmanGhostTexture, g.getPosition().x * 50, g.getPosition().y * 50, 50, 50);
+								break;
+							default:
+								break;
+						}
+						
+			//		}
 				}
 			}
 		}

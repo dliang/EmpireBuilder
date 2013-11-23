@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.me.empirebuilder.Managers.GameWorld;
 import com.me.empirebuilder.Players.Player;
 import com.me.empirebuilder.Units.Unit;
+import com.me.empirebuilder.Units.UnitGroup;
 
 public class GameLoop implements Runnable {	
 
@@ -15,6 +16,7 @@ public class GameLoop implements Runnable {
 	private GameWorld world;
 	private boolean human;
 	private Array<Unit> moveUnits;
+	private Array<UnitGroup> moveUnitGroups;
 	private Stack<Integer> removeIndex;
 	
 	public GameLoop(GameWorld world) {
@@ -25,6 +27,7 @@ public class GameLoop implements Runnable {
 		human = currentPlayer.isHuman();
 		world.setPlayerTurn(human);
 		moveUnits = new Array<Unit>();
+		moveUnitGroups = new Array<UnitGroup>();
 		removeIndex = new Stack<Integer>();
 	}
 	
@@ -40,28 +43,48 @@ public class GameLoop implements Runnable {
 				
 				int i = 0;
 				//move the units during turn here:
-				for (Unit u : moveUnits) {
-					//merge unit groups
-					if (world.getTile(u.getNewPath().get(0).getPosition()).hasUnit()) {
-						currentPlayer.addUnitToGroup(world.getUnit(world.getTile(u.getNewPath().get(0).getPosition())), u);
-						System.out.println("unit group merged");
-					}
-					world.getTile(u.getPosition()).setHasUnit(false);
-					u.move();
-					world.getTile(u.getPosition()).setHasUnit(true);
+//				for (Unit u : moveUnits) {
+////					//merge unit groups
+////					if (world.getTile(u.getNewPath().get(0).getPosition()).hasUnit()) {
+////						currentPlayer.addUnitToGroup(world.getUnit(world.getTile(u.getNewPath().get(0).getPosition())), u);
+////						System.out.println("unit group merged");
+////					}
+//					world.getTile(u.getPosition()).setHasUnit(false);
+//					u.move();
+//					world.getTile(u.getPosition()).setHasUnit(true);
+//					world.clearPossibleTargets();
+//					world.calculatePossibleTargets(world.getTile(u.getPosition()), u.getMovePointsRemaining());
+//
+//					
+//					if (u.getMovePointsRemaining() == 0) {
+//						removeIndex.add(i);
+//					}
+//					i++;
+//				}
+//				while (!removeIndex.empty()) {
+//					moveUnits.removeIndex(removeIndex.pop());
+//				}
+				for (UnitGroup g : moveUnitGroups) {
+//					//merge unit groups
+//					if (world.getTile(u.getNewPath().get(0).getPosition()).hasUnit()) {
+//						currentPlayer.addUnitToGroup(world.getUnit(world.getTile(u.getNewPath().get(0).getPosition())), u);
+//						System.out.println("unit group merged");
+//					}
+					world.getTile(g.getPosition()).setHasUnit(false);
+					g.move();
+					world.getTile(g.getPosition()).setHasUnit(true);
 					world.clearPossibleTargets();
-					world.calculatePossibleTargets(world.getTile(u.getPosition()), u.getMovePointsRemaining());
+					world.calculatePossibleTargets(world.getTile(g.getPosition()), g.getMovePointsRemaining());
 
 					
-					if (u.getMovePointsRemaining() == 0) {
+					if (g.getMovePointsRemaining() == 0) {
 						removeIndex.add(i);
 					}
 					i++;
 				}
 				while (!removeIndex.empty()) {
-					moveUnits.removeIndex(removeIndex.pop());
+					moveUnitGroups.removeIndex(removeIndex.pop());
 				}
-				
 				
 				//at the end of the turn, if there are units that have a set path but needs to move, move them here:
 			} else {
@@ -96,6 +119,10 @@ public class GameLoop implements Runnable {
 	public void moveUnit(Unit u) {
 		//add the unit to a list to be moved in run();
 		moveUnits.add(u);
+	}
+	
+	public void moveUnitGroup(UnitGroup g) {
+		moveUnitGroups.add(g);
 	}
 	
 	public Player getCurrentPlayer() {

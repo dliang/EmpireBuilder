@@ -126,7 +126,8 @@ public class BottomStage extends Stage {
 			
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 				if (world.getPlayerTurn()) {
-					world.startNextPlayerTurn();
+//					world.startNextPlayerTurn();
+					world.getGameLoop().startNextPlayerTurn();
 				} else {
 					System.out.println("Not player's turn");
 				}
