@@ -119,6 +119,7 @@ public class BottomStage extends Stage {
 		endTurnButton.setY(commandsY - BUTTON_SIZE * 3);
 		endTurnButton.setWidth(BUTTON_SIZE);
 		endTurnButton.setHeight(BUTTON_SIZE);
+		
 		endTurnButton.addListener(new InputListener() {			
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				return true;

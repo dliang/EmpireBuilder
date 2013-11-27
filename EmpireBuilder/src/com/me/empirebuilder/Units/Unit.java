@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
+import com.me.empirebuilder.PlayerObject;
+import com.me.empirebuilder.Enums.ObjectType;
 import com.me.empirebuilder.Enums.UnitTexture;
 import com.me.empirebuilder.Players.Resources;
 import com.me.empirebuilder.Tiles.Tile;
 
-public abstract class Unit {
-	protected Vector2 position;
+public abstract class Unit extends PlayerObject {
 	protected int hitpoints;
 	protected List<Tile> testPath;
 	protected boolean isSelected;
@@ -22,7 +23,7 @@ public abstract class Unit {
 	protected int groupIndex;
 	
 	public Unit(Vector2 position) {
-		this.position = position;
+		super(position);
 		isSelected = false;
 		texture = UnitTexture.SWORDSMAN;
 		movePoints = 0;
@@ -34,6 +35,7 @@ public abstract class Unit {
 		hitpoints = 0;
 		name = "";
 		groupIndex = 0;
+		objectType = ObjectType.UNIT;
 	}
 
 	public String getName() {
@@ -74,14 +76,6 @@ public abstract class Unit {
 	
 	public int getMovePoints() {
 		return movePoints;
-	}
-	
-	public Vector2 getPosition() {
-		return position;
-	}
-
-	public void setPosition(Vector2 position) {
-		this.position = position;
 	}
 
 	public int getHitpoints() {

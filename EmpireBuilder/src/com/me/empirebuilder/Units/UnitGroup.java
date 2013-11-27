@@ -7,12 +7,13 @@ import java.util.PriorityQueue;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.me.empirebuilder.PlayerObject;
+import com.me.empirebuilder.Enums.ObjectType;
 import com.me.empirebuilder.Enums.UnitTexture;
 import com.me.empirebuilder.Tiles.Tile;
 
-public class UnitGroup {
+public class UnitGroup extends PlayerObject {
 	private Array<Unit> units;
-	private Vector2 position;
 	private boolean isSelected;
 	private int movePoints;
 	private int movePointsRemaining;
@@ -20,6 +21,7 @@ public class UnitGroup {
 	private List<Tile> movePath;
 	
 	public UnitGroup(Vector2 position, Unit unit) {
+		super(position);
 		this.position = position;
 		units = new Array<Unit>();
 		units.add(unit);
@@ -28,6 +30,7 @@ public class UnitGroup {
 		movePointsRemaining = unit.getMovePointsRemaining();
 		movePath = new ArrayList<Tile>();
 		this.texture = UnitTexture.SWORDSMAN;
+		objectType = ObjectType.UNITGROUP;
 	}
 
 	public int getUnitIndex(Unit unit) {
@@ -66,14 +69,6 @@ public class UnitGroup {
 	
 	public Array<Unit> getUnits() {
 		return units;
-	}
-	
-	public void setPosition(Vector2 pos) {
-		position = pos;
-	}
-	
-	public Vector2 getPosition() {
-		return position;
 	}
 	
 	public boolean isSelected() {

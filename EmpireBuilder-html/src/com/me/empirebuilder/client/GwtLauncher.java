@@ -4,6 +4,7 @@ import com.me.empirebuilder.EmpireBuilder;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
+import com.google.gwt.core.client.Scheduler;
 
 public class GwtLauncher extends GwtApplication {
 	@Override

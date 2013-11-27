@@ -171,6 +171,7 @@ public class GameInputHandler implements InputProcessor {
 					}
 					if (firstRight) {
 //						System.out.println(world.getTile(unit.getPosition()).getPosition().x + " --> " + tile.getPosition().x);
+						world.resetTiles();
 						unitGroup.createShortestPath(world.getTile(unitGroup.getPosition()), tile);
 						
 //						for (Tile t : unit.getNewPath()) {

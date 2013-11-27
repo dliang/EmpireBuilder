@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Timer;
 
 
 import com.badlogic.gdx.math.MathUtils;
@@ -48,7 +49,6 @@ public class GameWorld {
 	private Array<Array<Vector2>> possibleTargetPaths = new Array<Array<Vector2>>();
 
 	private Array<Player> players = new Array<Player>();
-	private int playerIter;
 	private Player currentPlayer;
 	private boolean playerTurn;
 		
@@ -58,7 +58,6 @@ public class GameWorld {
 		generateMap(renderer.MAP_SIZE);
 		calculateAdjacentTiles();
 		this.players = players;
-		playerIter = 0;
 		playerTurn = false;
 		startNewGame();
 	}
@@ -88,22 +87,7 @@ public class GameWorld {
 		gameLoop = new GameLoop(this);
 		gameLoopThread = new Thread(gameLoop);
 		gameLoopThread.start();
-			
-	}
-	
-	public void startNextPlayerTurn() {
-//		incrementIter();
-//		currentPlayer = players.get(playerIter);
-//		currentPlayer.printName();
-		((GameLoop)gameLoop).startNextPlayerTurn();
-	}
-	
-	private void incrementIter() {
-		playerIter++;
-		if (playerIter >= players.size) {
-			playerIter = 0;
-		}
-	}
+	}	
 	
 	/**
 	 * get the current player

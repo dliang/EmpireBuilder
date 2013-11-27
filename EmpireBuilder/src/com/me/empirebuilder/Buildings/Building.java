@@ -1,11 +1,12 @@
 package com.me.empirebuilder.Buildings;
 
 import com.badlogic.gdx.math.Vector2;
+import com.me.empirebuilder.PlayerObject;
 import com.me.empirebuilder.Enums.BuildingTexture;
+import com.me.empirebuilder.Enums.ObjectType;
 
-public abstract class Building {
+public abstract class Building extends PlayerObject {
 
-	protected Vector2 position;
 	protected int hitpoints;
 	protected int cost;
 	protected BuildingTexture texture;
@@ -13,11 +14,12 @@ public abstract class Building {
 	protected boolean isSelected;
 
 	public Building(Vector2 position, int size, int hitpoints, int cost) {
-		this.position = position;
+		super(position);
 		this.hitpoints = hitpoints;
 		this.cost = cost;
 		this.size = size;
 		texture = BuildingTexture.HOUSE;
+		objectType = ObjectType.BUILDING;
 	}
 	
 	public int getSize() {
@@ -26,14 +28,6 @@ public abstract class Building {
 
 	public void setSize(int size) {
 		this.size = size;
-	}
-
-	public Vector2 getPosition() {
-		return position;
-	}
-
-	public void setPosition(Vector2 position) {
-		this.position = position;
 	}
 
 	public int getHitpoints() {
@@ -67,7 +61,7 @@ public abstract class Building {
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
-
+	
 	public abstract void printName();
 
 }
